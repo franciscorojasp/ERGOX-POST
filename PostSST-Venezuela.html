@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="es-VE">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PostSST Venezuela 🇻🇪</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
+body{background:#FFFBEB;min-height:100vh}
+.btn{background:linear-gradient(135deg,#EAB308,#D97706);color:white;border:none;padding:12px 24px;border-radius:12px;font-weight:bold;font-size:16px;cursor:pointer;transition:all 0.2s}
+.btn:hover{transform:scale(1.02);box-shadow:0 4px 12px rgba(234,179,8,0.4)}
+.btn:active{transform:scale(0.98)}
+.btn-sm{padding:8px 16px;font-size:14px}
+.btn-danger{background:linear-gradient(135deg,#EF4444,#DC2626)}
+.btn-success{background:linear-gradient(135deg,#059669,#047857)}
+.btn-blue{background:linear-gradient(135deg,#2563EB,#1D4ED8)}
+.btn-purple{background:linear-gradient(135deg,#7C3AED,#6D28D9)}
+.card{background:white;border-radius:16px;padding:24px;border:1px solid #f0f0f0;box-shadow:0 2px 8px rgba(0,0,0,0.05)}
+input,select,textarea{padding:12px 16px;border-radius:12px;border:1px solid #ddd;font-size:16px;width:100%;outline:none;transition:border 0.2s}
+input:focus,select:focus,textarea:focus{border-color:#EAB308;box-shadow:0 0 0 3px rgba(234,179,8,0.15)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;padding:12px 8px;border-bottom:2px solid #eee;color:#666;font-size:12px;text-transform:uppercase}
+td{padding:12px 8px;border-bottom:1px solid #f5f5f5}
+.badge{padding:4px 12px;border-radius:20px;font-size:12px;font-weight:bold;display:inline-block}
+.badge-ve{background:#FEF3C7;color:#92400E}
+.badge-alta{background:#FEE2E2;color:#991B1B}
+.badge-media{background:#FEF3C7;color:#92400E}
+.badge-baja{background:#D1FAE5;color:#065F46}
+.badge-admin{background:#FEE2E2;color:#991B1B}
+.badge-editor{background:#FEF3C7;color:#92400E}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.grid-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px}
+@media(max-width:768px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
+.tab{display:none}
+.tab.active{display:block}
+.tab-btn{background:none;border:none;padding:12px 20px;cursor:pointer;font-size:14px;border-bottom:2px solid transparent;color:#666;transition:all 0.2s;white-space:nowrap}
+.tab-btn.active{border-bottom-color:#EAB308;color:#000;font-weight:bold}
+.hidden{display:none !important}
+
+.toast-container{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px}
+.toast{padding:14px 20px;border-radius:12px;color:white;font-size:14px;font-weight:500;box-shadow:0 4px 16px rgba(0,0,0,0.15);animation:toastIn 0.3s ease;max-width:360px;display:flex;align-items:center;gap:10px}
+.toast-success{background:linear-gradient(135deg,#059669,#047857)}
+.toast-error{background:linear-gradient(135deg,#EF4444,#DC2626)}
+.toast-info{background:linear-gradient(135deg,#2563EB,#1D4ED8)}
+.toast-out{animation:toastOut 0.3s ease forwards}
+@keyframes toastIn{from{opacity:0;transform:translateX(60px)}to{opacity:1;transform:translateX(0)}}
+@keyframes toastOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(60px)}}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:9998;animation:fadeIn 0.2s}
+.modal-content{background:white;border-radius:16px;padding:32px;max-width:480px;width:90%;max-height:80vh;overflow-y:auto;animation:scaleIn 0.2s}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes scaleIn{from{transform:scale(0.9);opacity:0}to{transform:scale(1);opacity:1}}
+
+.stat-card{border-radius:16px;padding:24px;text-align:center;color:white}
+.stat-card .icon{font-size:36px;margin-bottom:8px}
+.stat-card .num{font-size:28px;font-weight:bold}
+.stat-card .label{font-size:14px;opacity:0.85}
+
+.post-preview{background:#F9FAFB;padding:16px;border-radius:12px;font-size:14px;line-height:1.6;white-space:pre-wrap;border:1px solid #eee;margin-bottom:12px}
+
+.fade-in{animation:fadeIn 0.3s ease}
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+<div id="toast-container" class="toast-container"></div>
+<div id="modal-root"></div>
+
+<script>
+(function() {
+  'use strict';
+
+  const VERSION = '2.0';
+
+  const NORMATIVAS = {
+    VE:{nombre:'Venezuela',flag:'🇻🇪',leyes:['LOPCYMAT','NT-04-2023 INPSASEL','NT-03-2016','NT-02-2008'],moneda:'Bs.',tasa:52.50},
+    CO:{nombre:'Colombia',flag:'🇨🇴',leyes:['Decreto 1072','Resolución 0312','GTC-45'],moneda:'COP',tasa:4150},
+    MX:{nombre:'México',flag:'🇲🇽',leyes:['NOM-035-STPS','NOM-017-STPS'],moneda:'MXN',tasa:17.50},
+    PE:{nombre:'Perú',flag:'🇵🇪',leyes:['Ley 29783','DS 005-2012-TR'],moneda:'PEN',tasa:3.70},
+  };
+
+  const PLANES = [
+    {id:'starter',nombre:'🚀 Starter',precio:9.99,creditos:10,popular:false},
+    {id:'profesional',nombre:'⭐ Profesional',precio:39.99,creditos:50,popular:true},
+    {id:'empresarial',nombre:'🏢 Empresarial',precio:129.99,creditos:200,popular:false},
+  ];
+
+  const CALENDARIO_BASE = [
+    {fecha:'2025-01-15',titulo:'📋 PSST registrado INPSASEL',tipo:'vencimiento',urgencia:'alta',ley:'NT-04-2023',paises:['VE']},
+    {fecha:'2025-03-31',titulo:'📚 16h trimestrales formación SST',tipo:'formacion',urgencia:'alta',ley:'LOPCYMAT Art.56',paises:['VE']},
+    {fecha:'2025-04-15',titulo:'🩺 Exámenes médicos periódicos',tipo:'obligacion',urgencia:'alta',ley:'LOPCYMAT Art.40',paises:['VE']},
+    {fecha:'2025-06-15',titulo:'🔴 Simulacro emergencias semestral',tipo:'inspeccion',urgencia:'alta',ley:'LOPCYMAT Art.56',paises:['VE']},
+    {fecha:'2025-09-30',titulo:'📚 48h formación acumuladas',tipo:'formacion',urgencia:'media',ley:'NT-03-2016',paises:['VE']},
+    {fecha:'2025-10-15',titulo:'🔴 2do Simulacro emergencias',tipo:'inspeccion',urgencia:'alta',ley:'LOPCYMAT Art.56',paises:['VE']},
+    {fecha:'2025-12-01',titulo:'🔴 Auditoría interna SST',tipo:'inspeccion',urgencia:'alta',ley:'NT-04-2023',paises:['VE']},
+    {fecha:'2025-12-31',titulo:'📊 Cierre anual PSST',tipo:'vencimiento',urgencia:'alta',ley:'LOPCYMAT',paises:['VE']},
+    {fecha:'2025-02-28',titulo:'📋 Plan de gestión de riesgos SG-SST',tipo:'vencimiento',urgencia:'alta',ley:'Decreto 1072',paises:['CO']},
+    {fecha:'2025-05-01',titulo:'📚 Capacitación SST 50h anuales',tipo:'formacion',urgencia:'media',ley:'Resolución 0312',paises:['CO']},
+    {fecha:'2025-07-15',titulo:'🩺 Exámenes ocupacionales Colombia',tipo:'obligacion',urgencia:'alta',ley:'Resolución 0312',paises:['CO']},
+    {fecha:'2025-10-01',titulo:'🔴 Simulacro evacuación CO',tipo:'inspeccion',urgencia:'alta',ley:'Decreto 1072',paises:['CO']},
+    {fecha:'2025-03-15',titulo:'📋 Identificación de riesgos psicosociales',tipo:'vencimiento',urgencia:'alta',ley:'NOM-035-STPS',paises:['MX']},
+    {fecha:'2025-06-30',titulo:'📚 Capacitación seguridad MX',tipo:'formacion',urgencia:'media',ley:'NOM-017-STPS',paises:['MX']},
+    {fecha:'2025-04-01',titulo:'📋 Comité de Seguridad y Salud PE',tipo:'vencimiento',urgencia:'alta',ley:'Ley 29783',paises:['PE']},
+    {fecha:'2025-08-15',titulo:'🩺 Exámenes ocupacionales PE',tipo:'obligacion',urgencia:'alta',ley:'DS 005-2012-TR',paises:['PE']},
+  ];
+
+  const TEMAS_RAPIDOS = {
+    VE:[
+      {label:'📋 PSST NT-04-2023',tema:'PSST según NT-04-2023 INPSASEL'},
+      {label:'👥 CSSL',tema:'Comité de Seguridad CSSL LOPCYMAT'},
+      {label:'📚 16h formación',tema:'16 horas trimestrales formación SST'},
+      {label:'🩺 Exámenes',tema:'Exámenes médicos ocupacionales'},
+      {label:'🔥 Riesgos',tema:'Identificación de riesgos laborales'},
+      {label:'⚡ Electricidad',tema:'Seguridad eléctrica en el trabajo'},
+      {label:'🧪 Químicos',tema:'Manejo de sustancias químicas peligrosas'},
+      {label:'🏗️ Construcción',tema:'Seguridad en obras de construcción'},
+    ],
+    CO:[
+      {label:'📋 SG-SST',tema:'Sistema de Gestión SG-SST Decreto 1072'},
+      {label:'👥 COPASST',tema:'Comité COPASST Colombia'},
+      {label:'📚 Capacitación',tema:'Capacitación 50h anuales SST Colombia'},
+      {label:'🩺 Examenes',tema:'Exámenes ocupacionales Resolución 0312'},
+    ],
+    MX:[
+      {label:'🧠 NOM-035',tema:'Riesgos psicosociales NOM-035-STPS'},
+      {label:'🏋️ NOM-017',tema:'Equipo de protección NOM-017-STPS'},
+      {label:'📋 Comisiones',tema:'Comisiones de seguridad STPS'},
+    ],
+    PE:[
+      {label:'📋 Ley 29783',tema:'Sistema de gestión Ley 29783'},
+      {label:'👥 Comité PE',tema:'Comité de seguridad DS 005-2012-TR'},
+      {label:'📚 IPERC',tema:'Identificación de peligros IPERC'},
+    ],
+  };
+
+  let state = loadState();
+
+  function getPerfilDefault() {
+    return {nombreEmpresa:'',rif:'',logoUrl:'',direccionFiscal:'',telefono:'',emailContacto:'',personaContacto:'',pais:'VE'};
+  }
+
+  function getDefaultState() {
+    return {
+      usuarios:{
+        'admin@sst.com':{nombre:'Admin PostSST',rol:'ADMIN',pass:'123456',empresa:'Plataforma',cred:1000,perfil:getPerfilDefault()},
+        'empresa@sst.ve':{nombre:'Constructora Venezuela',rol:'EDITOR',pass:'empresa123',empresa:'Constructora Ávila C.A.',cred:100,perfil:getPerfilDefault()},
+      },
+      currentUser:null,
+      historial:[],
+      leads:[],
+      leadMagnets:[],
+      totalPosts:0,
+      totalIngresos:0,
+      activeTab:'generador',
+      _pais:'VE',
+      _tipo:'educativo',
+    };
+  }
+
+  function loadState() {
+    try {
+      const saved = localStorage.getItem('postsst_state');
+      if (saved) {
+        var parsed = JSON.parse(saved);
+        if (parsed._version === VERSION) {
+          Object.keys(parsed.usuarios || {}).forEach(function(email) {
+            if (!parsed.usuarios[email].perfil) {
+              parsed.usuarios[email].perfil = getPerfilDefault();
+            }
+          });
+          return parsed;
+        }
+      }
+    } catch(e) {}
+    const s = getDefaultState();
+    s._version = VERSION;
+    return s;
+  }
+
+  function saveState() {
+    const toSave = Object.assign({}, state);
+    delete toSave._ultimoPost;
+    toSave._version = VERSION;
+    try { localStorage.setItem('postsst_state', JSON.stringify(toSave)); } catch(e) {}
+  }
+
+  function getCredits() {
+    if (!state.currentUser) return 0;
+    return state.usuarios[state.currentUser.email].cred;
+  }
+
+  function setCredits(val) {
+    if (!state.currentUser) return;
+    state.usuarios[state.currentUser.email].cred = val;
+    saveState();
+  }
+
+  function useCredit() {
+    const c = getCredits();
+    if (c < 1) return false;
+    setCredits(c - 1);
+    return true;
+  }
+
+  function addCredits(amount) {
+    setCredits(getCredits() + amount);
+  }
+
+  function toast(msg, type) {
+    type = type || 'success';
+    const container = document.getElementById('toast-container');
+    const el = document.createElement('div');
+    el.className = 'toast toast-' + type;
+    const icons = {success:'✅',error:'❌',info:'ℹ️'};
+    el.innerHTML = '<span>' + (icons[type]||'') + '</span><span>' + msg + '</span>';
+    container.appendChild(el);
+    setTimeout(function() {
+      el.classList.add('toast-out');
+      setTimeout(function() { el.remove(); }, 300);
+    }, 3000);
+  }
+
+  function showModal(contentHtml, onMount) {
+    const root = document.getElementById('modal-root');
+    root.innerHTML = '<div class="modal-overlay" id="modal-overlay"><div class="modal-content">' + contentHtml + '</div></div>';
+    document.getElementById('modal-overlay').addEventListener('click', function(e) {
+      if (e.target.id === 'modal-overlay') closeModal();
+    });
+    if (onMount) onMount();
+  }
+
+  function closeModal() {
+    document.getElementById('modal-root').innerHTML = '';
+  }
+
+  function escHtml(s) {
+    const div = document.createElement('div');
+    div.textContent = s;
+    return div.innerHTML;
+  }
+
+  function generarPostContent(tipo, tema, pais) {
+    const norm = NORMATIVAS[pais] || NORMATIVAS.VE;
+    const perfil = (state.currentUser && state.usuarios[state.currentUser.email]) ? (state.usuarios[state.currentUser.email].perfil || getPerfilDefault()) : getPerfilDefault();
+    const empresa = perfil.nombreEmpresa || (state.currentUser ? state.usuarios[state.currentUser.email].empresa : 'Tu Empresa');
+    const normLabels = {VE:'RIF',CO:'NIT',MX:'RFC',PE:'RUC'};
+    const rifLabel = normLabels[pais] || 'RIF';
+    const rifText = perfil.rif ? '\n' + rifLabel + ': ' + perfil.rif : '';
+    const dirText = perfil.direccionFiscal ? '\n📍 ' + perfil.direccionFiscal : '';
+    const telText = perfil.telefono ? '\n📞 ' + perfil.telefono : '';
+    const emailText = perfil.emailContacto ? '\n📧 ' + perfil.emailContacto : '';
+    const contactoText = perfil.personaContacto ? '\n👤 ' + perfil.personaContacto : '';
+    const contactoBlock = (telText || emailText || contactoText) ? '\n\nContáctanos:' + telText + emailText + contactoText : '';
+    const footer = contactoBlock + dirText + rifText;
+    const templates = {
+      VE:{
+        educativo:'📚 ' + tema + '\n\n"' + norm.leyes[0] + ' establece que toda empresa debe contar con un Programa de Seguridad y Salud en el Trabajo (PSST) debidamente registrado ante INPSASEL."\n\nEn ' + empresa + ' cumplimos con esta normativa porque la seguridad de nuestro equipo es prioridad.\n\n✅ PSST registrado\n✅ Delegado de prevención designado\n✅ Comité SSLS constituido\n\n¿Tu empresa cumple? Contáctanos para una asesoría personalizada.' + footer,
+        promocional:'📢 ' + tema + '\n\nEn ' + empresa + ' te ayudamos a implementar y mantener el cumplimiento de:\n\n✅ ' + norm.leyes.join('\n✅ ') + '\n\n🏢 PSST registrado ante INPSASEL\n📚 Capacitación 16h trimestrales cumplidas\n👥 CSSL constituido y activo\n🩺 Exámenes médicos al día\n\n📱 Contáctanos hoy y evita multas de 30 a 100 UT.' + footer,
+        conciencia:'⚠️ ' + tema + '\n\n"El artículo 56 de la LOPCYMAT exige que toda empresa tenga un Servicio de SST. El incumplimiento puede generar multas de 30 a 100 UT (más de Bs. 3.000 en 2025)."\n\nAdemás, la NT-04-2023 INPSASEL establece sanciones por:\n❌ No tener PSST registrado\n❌ No realizar exámenes médicos\n❌ No constituir el CSSL\n\n' + empresa + ' te ayuda a cumplir y proteger a tu equipo.' + footer,
+      },
+      CO:{
+        educativo:'📚 ' + tema + '\n\n"El ' + norm.leyes[0] + ' establece que toda empresa con 10 o más trabajadores debe implementar un Sistema de Gestión de Seguridad y Salud en el Trabajo (SG-SST)."\n\nEn ' + empresa + ' cumplimos con esta normativa porque protegemos lo más valioso: nuestro talento humano.\n\n¿Tu empresa está al día? Contáctanos para una evaluación.' + footer,
+        promocional:'📢 ' + tema + '\n\nEn ' + empresa + ' te ayudamos a implementar y mantener el cumplimiento normativo colombiano:\n\n✅ ' + norm.leyes.join('\n✅ ') + '\n\n📋 SG-SST implementado\n👥 COPASST activo\n🩺 Exámenes ocupacionales vigentes\n\n📱 Escríbenos y protege a tu equipo.' + footer,
+        conciencia:'⚠️ ' + tema + '\n\n"El incumplimiento del SG-SST puede generar multas hasta 500 SMMLV según el ' + norm.leyes[0] + '. Más de $580 millones de pesos en 2025."\n\nNo arriesgues tu empresa. ' + empresa + ' te ayuda a cumplir.' + footer,
+      },
+      MX:{
+        educativo:'📚 ' + tema + '\n\n"La ' + norm.leyes[0] + ' obliga a los empleadores a identificar, analizar y prevenir los factores de riesgo psicosocial en el centro de trabajo."\n\nEn ' + empresa + ' la salud mental de nuestro equipo es prioridad.\n\n¿Tu empresa cumple con la NOM-035? Contáctanos.' + footer,
+        promocional:'📢 ' + tema + '\n\nEn ' + empresa + ' te apoyamos con el cumplimiento de:\n\n✅ ' + norm.leyes.join('\n✅ ') + '\n\n📋 Evaluaciones de riesgos psicosociales\n🏋️ EPP certificado\n📚 Capacitación constante\n\n📱 Contáctanos hoy.' + footer,
+        conciencia:'⚠️ ' + tema + '\n\n"La ' + norm.leyes[0] + ' establece sanciones administrativas de hasta 425 UMA por incumplimiento. Protege a tu equipo y evita sanciones."\n\n' + empresa + ' te ayuda a cumplir.' + footer,
+      },
+      PE:{
+        educativo:'📚 ' + tema + '\n\n"La ' + norm.leyes[0] + ' establece que todo empleador debe garantizar un entorno de trabajo seguro implementando un sistema de gestión de SST."\n\nEn ' + empresa + ' cumplimos con la normativa porque la seguridad es inversión, no gasto.\n\n¿Tu empresa cumple? Contáctanos.' + footer,
+        promocional:'📢 ' + tema + '\n\nEn ' + empresa + ' te ayudamos con el cumplimiento de:\n\n✅ ' + norm.leyes.join('\n✅ ') + '\n\n📋 IPERC actualizado\n👥 Comité SST activo\n🩺 Exámenes ocupacionales\n\n📱 Contáctanos y protege a tu equipo.' + footer,
+        conciencia:'⚠️ ' + tema + '\n\n"La ' + norm.leyes[0] + ' establece paralización de actividades y multas por incumplimiento. La seguridad no es negociable."\n\n' + empresa + ' te ayuda a cumplir con la ley y cuidar a tus trabajadores.' + footer,
+      },
+    };
+    return (templates[pais] && templates[pais][tipo]) || templates.VE.educativo;
+  }
+
+  function generarHashtags(tipo, pais) {
+    const norm = NORMATIVAS[pais] || NORMATIVAS.VE;
+    const base = ['#' + norm.nombre.replace(/\s/g,''), '#' + norm.leyes[0].replace(/[\s/]/g,''), '#SST', '#Prevencion'];
+    const extras = {
+      educativo:['#CapacitacionSST','#SeguridadLaboral'],
+      promocional:['#ServiciosSST','#ConsultoriaSST'],
+      conciencia:['#Concienciacion','#CeroAccidentes'],
+    };
+    return base.concat(extras[tipo] || []);
+  }
+
+  function crearPost(tipo, tema, pais) {
+    if (!useCredit()) {
+      toast('Créditos insuficientes. Compra más para continuar.', 'error');
+      return null;
+    }
+    const caption = generarPostContent(tipo, tema, pais);
+    const hashtags = generarHashtags(tipo, pais);
+    const post = {
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+      caption: caption,
+      tipo: tipo,
+      pais: pais || 'VE',
+      hashtags: hashtags,
+      fecha: new Date().toISOString(),
+      likes: Math.floor(Math.random() * 500) + 50,
+    };
+    state.historial.unshift(post);
+    state.totalPosts++;
+    state._ultimoPost = post;
+    saveState();
+    return post;
+  }
+
+  function crearLeadMagnet(titulo, url) {
+    const lm = {id: Date.now().toString(36), titulo: titulo, url: url, leads: [], creado: new Date().toISOString()};
+    state.leadMagnets.push(lm);
+    saveState();
+    return lm;
+  }
+
+  function login(email, pass) {
+    const u = state.usuarios[email];
+    if (!u || u.pass !== pass) return false;
+    state.currentUser = {email: email, nombre: u.nombre, rol: u.rol, empresa: u.empresa};
+    saveState();
+    return true;
+  }
+
+  function logout() {
+    state.currentUser = null;
+    state.activeTab = 'generador';
+    saveState();
+    render();
+  }
+
+  function formatFecha(iso) {
+    return new Date(iso).toLocaleDateString('es-VE', {day:'2-digit',month:'short',year:'numeric'});
+  }
+
+  function formatCorta(fechaStr) {
+    return new Date(fechaStr + 'T12:00:00').toLocaleDateString('es-VE', {day:'2-digit',month:'short'});
+  }
+
+  function diasRestantes(fechaStr) {
+    const hoy = new Date();
+    hoy.setHours(0,0,0,0);
+    const target = new Date(fechaStr + 'T12:00:00');
+    target.setHours(0,0,0,0);
+    return Math.ceil((target - hoy) / (1000*60*60*24));
+  }
+
+  // ==================== RENDER ====================
+
+  function render() {
+    const app = document.getElementById('app');
+    if (!state.currentUser) {
+      renderLogin(app);
+    } else {
+      renderDashboard(app);
+    }
+  }
+
+  function renderLogin(c) {
+    c.innerHTML = '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px">' +
+      '<div class="card" style="max-width:440px;width:100%;text-align:center;padding:40px">' +
+        '<div style="font-size:64px;margin-bottom:16px">🇻🇪</div>' +
+        '<h1 style="font-size:24px;margin-bottom:4px">PostSST <span style="color:#EAB308">Venezuela</span></h1>' +
+        '<p style="color:#666;font-size:14px;margin-bottom:24px">LOPCYMAT · INPSASEL · NT-04-2023</p>' +
+        '<div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px">' +
+          '<input id="login-email" value="" placeholder="Email" />' +
+          '<input id="login-pass" type="password" value="" placeholder="Contraseña" />' +
+          '<div id="login-error" style="color:#DC2626;font-size:14px;display:none"></div>' +
+          '<button class="btn" id="btn-login">🇻🇪 Ingresar</button>' +
+        '</div>' +
+        '<div style="font-size:13px;color:#666;margin-bottom:12px">— acceso rápido —</div>' +
+        '<div class="grid-2" style="gap:8px">' +
+          '<button class="btn btn-sm" style="background:#1F2937" id="btn-quick-admin">👑 Admin</button>' +
+          '<button class="btn btn-sm" style="background:#92400E" id="btn-quick-empresa">🏗️ Empresa</button>' +
+        '</div>' +
+        '<div style="margin-top:20px;padding:16px;background:#F9FAFB;border-radius:12px;font-size:12px;color:#666;text-align:left">' +
+          '<p style="font-weight:bold;margin-bottom:8px">🔑 Credenciales:</p>' +
+          '<p>👑 admin@sst.com / 123456</p>' +
+          '<p>🏗️ empresa@sst.ve / empresa123</p>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+
+    document.getElementById('btn-login').addEventListener('click', function() {
+      var email = document.getElementById('login-email').value.trim();
+      var pass = document.getElementById('login-pass').value;
+      var err = document.getElementById('login-error');
+      if (login(email, pass)) {
+        toast('Bienvenido, ' + state.currentUser.nombre, 'success');
+        render();
+      } else {
+        err.style.display = 'block';
+        err.textContent = 'Credenciales inválidas';
+      }
+    });
+
+    document.getElementById('btn-quick-admin').addEventListener('click', function() {
+      if (login('admin@sst.com','123456')) { toast('Bienvenido, Admin', 'success'); render(); }
+    });
+
+    document.getElementById('btn-quick-empresa').addEventListener('click', function() {
+      if (login('empresa@sst.ve','empresa123')) { toast('Bienvenido, Constructora Venezuela', 'success'); render(); }
+    });
+
+    document.getElementById('login-pass').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') document.getElementById('btn-login').click();
+    });
+  }
+
+  function renderDashboard(c) {
+    var esAdmin = state.currentUser.rol === 'ADMIN';
+    var credits = getCredits();
+    var tabs = [
+      {id:'generador',icon:'📸',label:'Generar'},
+      {id:'historial',icon:'📋',label:'Historial'},
+      {id:'leads',icon:'🧲',label:'Leads'},
+      {id:'calendario',icon:'📆',label:'Cumplimiento'},
+      {id:'creditos',icon:'💳',label:'Créditos'},
+      {id:'config',icon:'⚙️',label:'Configuración'},
+    ];
+    if (esAdmin) tabs.push({id:'admin',icon:'👑',label:'Admin'});
+
+    var tabBtns = tabs.map(function(t) {
+      return '<button class="tab-btn' + (state.activeTab === t.id ? ' active' : '') + '" data-tab="' + t.id + '">' + t.icon + ' ' + t.label + '</button>';
+    }).join('');
+
+    c.innerHTML =
+      '<div style="background:linear-gradient(135deg,#EAB308,#D97706);padding:20px 32px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">' +
+        '<div style="display:flex;align-items:center;gap:12px">' +
+          '<span style="font-size:32px">🇻🇪</span>' +
+          '<div>' +
+            '<span style="font-weight:bold;font-size:20px;color:white">PostSST Venezuela</span>' +
+            '<span style="font-size:12px;color:rgba(255,255,255,0.8);display:block">' + escHtml(state.currentUser.empresa) + '</span>' +
+          '</div>' +
+        '</div>' +
+        '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">' +
+          '<span id="credits-badge" style="background:rgba(255,255,255,0.2);padding:6px 16px;border-radius:20px;font-weight:bold;color:white;font-size:14px">🪙 ' + credits + ' créditos</span>' +
+          '<span style="font-size:14px;color:white">' + escHtml(state.currentUser.nombre) + '</span>' +
+          '<span class="badge" style="background:rgba(255,255,255,0.2);color:white">' + (esAdmin?'👑 ADMIN':'✏️ EDITOR') + '</span>' +
+          '<button class="btn btn-sm" style="background:#EF4444;color:white" id="btn-logout">Salir</button>' +
+        '</div>' +
+      '</div>' +
+      '<div style="background:white;border-bottom:1px solid #eee;padding:0 32px;display:flex;overflow-x:auto" id="tab-bar">' + tabBtns + '</div>' +
+      '<div style="padding:24px 32px" id="tab-content"></div>';
+
+    document.getElementById('btn-logout').addEventListener('click', logout);
+
+    var tabBtnEls = document.querySelectorAll('#tab-bar .tab-btn');
+    tabBtnEls.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        state.activeTab = btn.getAttribute('data-tab');
+        saveState();
+        tabBtnEls.forEach(function(b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        renderTabContent();
+      });
+    });
+
+    renderTabContent();
+  }
+
+  function renderTabContent() {
+    var container = document.getElementById('tab-content');
+    if (!container) return;
+    switch(state.activeTab) {
+      case 'generador': renderGenerador(container); break;
+      case 'historial': renderHistorial(container); break;
+      case 'leads': renderLeads(container); break;
+      case 'calendario': renderCalendario(container); break;
+      case 'creditos': renderCreditos(container); break;
+      case 'config': renderConfiguracion(container); break;
+      case 'admin': renderAdmin(container); break;
+      default: renderGenerador(container);
+    }
+  }
+
+  function updateCreditsBadge() {
+    var el = document.getElementById('credits-badge');
+    if (el) el.innerHTML = '🪙 ' + getCredits() + ' créditos';
+  }
+
+  // ==================== GENERADOR ====================
+
+  function renderGenerador(c) {
+    var pais = state._pais;
+    var tipo = state._tipo;
+    var norm = NORMATIVAS[pais] || NORMATIVAS.VE;
+    var temas = TEMAS_RAPIDOS[pais] || TEMAS_RAPIDOS.VE;
+
+    var paisBtns = Object.keys(NORMATIVAS).map(function(k) {
+      var n = NORMATIVAS[k];
+      return '<button class="btn btn-sm pais-btn" data-pais="' + k + '" style="background:' + (k===pais?'#EAB308':'#6B7280') + '">' + n.flag + ' ' + n.nombre + '</button>';
+    }).join('');
+
+    var tipoBtns = [
+      {id:'educativo',icon:'📚',label:'Educativo',color:'#2563EB'},
+      {id:'promocional',icon:'📢',label:'Promocional',color:'#059669'},
+      {id:'conciencia',icon:'⚠️',label:'Concienciación',color:'#DC2626'},
+    ].map(function(t) {
+      return '<button class="btn btn-sm tipo-btn" data-tipo="' + t.id + '" style="background:' + (t.id===tipo?t.color:'#6B7280') + '">' + t.icon + ' ' + t.label + '</button>';
+    }).join('');
+
+    var temaBtns = temas.map(function(t) {
+      return '<button class="badge badge-ve" style="cursor:pointer" data-tema="' + escHtml(t.tema) + '">' + t.label + '</button>';
+    }).join('');
+
+    var preview = '';
+    if (state._ultimoPost) {
+      var p = state._ultimoPost;
+      preview =
+        '<div class="post-preview">' + escHtml(p.caption) + '</div>' +
+        '<div style="color:#2563EB;font-size:13px;margin-bottom:12px">' + p.hashtags.join(' ') + '</div>' +
+        '<div style="display:flex;gap:12px;font-size:13px;color:#666;margin-bottom:16px">' +
+          '<span>❤️ ' + p.likes + '</span><span>💬 12</span><span>📤 34</span>' +
+        '</div>' +
+        '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+          '<button class="btn btn-sm" id="btn-copiar">📋 Copiar</button>' +
+          '<button class="btn btn-sm btn-success" id="btn-whatsapp">💬 WhatsApp</button>' +
+          '<button class="btn btn-sm btn-purple" id="btn-leadmagnet">🧲 Lead Magnet</button>' +
+          '<button class="btn btn-sm btn-blue" id="btn-telegram">✈️ Telegram</button>' +
+        '</div>';
+    } else {
+      preview = '<div style="text-align:center;padding:40px 0">' +
+        '<div style="font-size:48px;margin-bottom:16px">📱</div>' +
+        '<h3 style="color:#666">Vista previa</h3>' +
+        '<p style="font-size:14px;color:#999">Genera tu primera publicación</p>' +
+      '</div>';
+    }
+
+    var normText = '<strong>' + norm.flag + ' Normativa aplicable:</strong><br>' + norm.leyes.map(function(l){return '• ' + l;}).join('<br>');
+
+    c.innerHTML = '<div class="grid-2">' +
+      '<div class="card fade-in">' +
+        '<h2 style="font-size:18px;margin-bottom:16px">📸 Generar Publicación</h2>' +
+
+        '<label style="font-weight:bold;font-size:14px;display:block;margin-bottom:8px">🌍 País / Normativa</label>' +
+        '<div class="grid-4" style="margin-bottom:16px" id="pais-btns">' + paisBtns + '</div>' +
+
+        '<div style="padding:12px;background:#FFFBEB;border-radius:12px;font-size:13px;color:#92400E;margin-bottom:16px">' + normText + '</div>' +
+
+        '<label style="font-weight:bold;font-size:14px;display:block;margin-bottom:8px">📚 Tipo de publicación</label>' +
+        '<div class="grid-3" style="margin-bottom:16px" id="tipo-btns">' + tipoBtns + '</div>' +
+
+        '<label style="font-weight:bold;font-size:14px;display:block;margin-bottom:8px">✏️ Tema o asunto</label>' +
+        '<input id="tema-input" value="Cómo implementar el PSST según LOPCYMAT" style="margin-bottom:12px" />' +
+
+        '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px" id="tema-btns">' + temaBtns + '</div>' +
+
+        '<button class="btn" style="width:100%" id="btn-generar">🚀 Generar Publicación ' + norm.flag + '</button>' +
+      '</div>' +
+
+      '<div class="card fade-in" id="preview-card">' + preview + '</div>' +
+    '</div>';
+
+    document.querySelectorAll('.pais-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        state._pais = btn.getAttribute('data-pais');
+        saveState();
+        renderGenerador(c);
+      });
+    });
+
+    document.querySelectorAll('.tipo-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        state._tipo = btn.getAttribute('data-tipo');
+        saveState();
+        renderGenerador(c);
+      });
+    });
+
+    document.querySelectorAll('#tema-btns .badge').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        document.getElementById('tema-input').value = btn.getAttribute('data-tema');
+      });
+    });
+
+    var generarBtn = document.getElementById('btn-generar');
+    if (generarBtn) {
+      generarBtn.addEventListener('click', function() {
+        var tema = document.getElementById('tema-input').value.trim();
+        if (!tema) { toast('Escribe un tema', 'error'); return; }
+        var post = crearPost(state._tipo, tema, state._pais);
+        if (!post) return;
+        toast('Publicación generada (-1 crédito)', 'success');
+        updateCreditsBadge();
+        renderGenerador(c);
+      });
+    }
+
+    var copiarBtn = document.getElementById('btn-copiar');
+    if (copiarBtn && state._ultimoPost) {
+      copiarBtn.addEventListener('click', function() {
+        var text = state._ultimoPost.caption + '\n\n' + state._ultimoPost.hashtags.join(' ');
+        navigator.clipboard.writeText(text).then(function() {
+          toast('Texto copiado al portapapeles', 'success');
+        }).catch(function() {
+          toast('Error al copiar', 'error');
+        });
+      });
+    }
+
+    var waBtn = document.getElementById('btn-whatsapp');
+    if (waBtn && state._ultimoPost) {
+      waBtn.addEventListener('click', function() {
+        var texto = encodeURIComponent(state._ultimoPost.caption.slice(0, 200) + '...\n\n' + state._ultimoPost.hashtags.join(' '));
+        window.open('https://wa.me/?text=' + texto, '_blank');
+        toast('Abriendo WhatsApp...', 'info');
+      });
+    }
+
+    var tgBtn = document.getElementById('btn-telegram');
+    if (tgBtn && state._ultimoPost) {
+      tgBtn.addEventListener('click', function() {
+        var texto = encodeURIComponent(state._ultimoPost.caption.slice(0, 200) + '...');
+        window.open('https://t.me/share/url?url=&text=' + texto, '_blank');
+        toast('Abriendo Telegram...', 'info');
+      });
+    }
+
+    var lmBtn = document.getElementById('btn-leadmagnet');
+    if (lmBtn) {
+      lmBtn.addEventListener('click', function() {
+        showModal(
+          '<h2 style="font-size:18px;margin-bottom:16px">🧲 Crear Lead Magnet</h2>' +
+          '<p style="font-size:14px;color:#666;margin-bottom:16px">Genera un enlace de descarga para capturar leads desde tu publicación.</p>' +
+          '<label style="font-weight:bold;font-size:14px;display:block;margin-bottom:6px">Título del recurso</label>' +
+          '<input id="lm-title" placeholder="Ej: Checklist LOPCYMAT 2025" value="Checklist LOPCYMAT" style="margin-bottom:12px" />' +
+          '<label style="font-weight:bold;font-size:14px;display:block;margin-bottom:6px">URL del PDF / recurso</label>' +
+          '<input id="lm-url" placeholder="https://ejemplo.com/recurso.pdf" style="margin-bottom:16px" />' +
+          '<div style="display:flex;gap:8px">' +
+            '<button class="btn" style="flex:1" id="btn-lm-save">🔗 Generar link</button>' +
+            '<button class="btn btn-sm" style="background:#6B7280" id="btn-lm-cancel">Cancelar</button>' +
+          '</div>' +
+          '<div id="lm-result" style="display:none;margin-top:12px;padding:12px;background:#D1FAE5;border-radius:10px;font-size:13px;color:#065F46"></div>',
+          function() {
+            document.getElementById('btn-lm-cancel').addEventListener('click', closeModal);
+            document.getElementById('btn-lm-save').addEventListener('click', function() {
+              var titulo = document.getElementById('lm-title').value.trim();
+              var url = document.getElementById('lm-url').value.trim();
+              if (!titulo || !url) { toast('Completa todos los campos', 'error'); return; }
+              var lm = crearLeadMagnet(titulo, url);
+              var link = window.location.origin + '/descarga/' + lm.id;
+              navigator.clipboard.writeText(link).catch(function(){});
+              document.getElementById('lm-result').style.display = 'block';
+              document.getElementById('lm-result').innerHTML = '✅ Link generado y copiado:<br><strong>' + link + '</strong><br><br>Compártelo en tu bio de Instagram.';
+              toast('Link copiado al portapapeles', 'success');
+              renderLeads(document.getElementById('tab-content'));
+            });
+          }
+        );
+      });
+    }
+  }
+
+  // ==================== HISTORIAL ====================
+
+  function renderHistorial(c) {
+    var posts = state.historial;
+    var listHtml = '';
+    if (posts.length === 0) {
+      listHtml = '<p style="color:#999;text-align:center;padding:40px">Aún no has generado publicaciones</p>';
+    } else {
+      listHtml = posts.map(function(p, i) {
+        var norm = NORMATIVAS[p.pais] || NORMATIVAS.VE;
+        return '<div style="padding:16px;border-bottom:1px solid #eee" class="fade-in">' +
+          '<div style="display:flex;justify-content:space-between;align-items:start;gap:12px;flex-wrap:wrap">' +
+            '<div style="flex:1;min-width:200px">' +
+              '<div style="display:flex;gap:6px;margin-bottom:6px">' +
+                '<span class="badge badge-ve">' + norm.flag + ' ' + p.tipo + '</span>' +
+                '<span class="badge ' + (p.urgencia==='alta'?'badge-alta':'badge-media') + '">' + formatFecha(p.fecha) + '</span>' +
+              '</div>' +
+              '<p style="font-size:14px;margin:4px 0;line-height:1.5">' + escHtml(p.caption.slice(0, 180)) + (p.caption.length > 180 ? '...' : '') + '</p>' +
+              '<p style="font-size:12px;color:#999">❤️ ' + p.likes + ' likes</p>' +
+            '</div>' +
+            '<div style="display:flex;gap:6px;flex-shrink:0">' +
+              '<button class="btn btn-sm" data-action="copy" data-idx="' + i + '">📋</button>' +
+              '<button class="btn btn-sm btn-danger" data-action="delete" data-idx="' + i + '" style="font-size:12px">🗑️</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }
+
+    c.innerHTML = '<div class="card fade-in">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px">' +
+        '<h2 style="font-size:18px">📋 Historial de publicaciones (' + posts.length + ')</h2>' +
+        '<div style="display:flex;gap:8px">' +
+          (posts.length > 0 ? '<button class="btn btn-sm btn-blue" id="btn-export-all">📤 Exportar todo</button>' : '') +
+          (posts.length > 0 ? '<button class="btn btn-sm btn-danger" id="btn-delete-all">🗑️ Borrar todo</button>' : '') +
+        '</div>' +
+      '</div>' +
+      '<div id="historial-list">' + listHtml + '</div>' +
+    '</div>';
+
+    c.querySelectorAll('[data-action="copy"]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var idx = parseInt(btn.getAttribute('data-idx'));
+        var p = state.historial[idx];
+        if (p) {
+          navigator.clipboard.writeText(p.caption + '\n\n' + p.hashtags.join(' ')).then(function() {
+            toast('Publicación copiada', 'success');
+          }).catch(function() { toast('Error al copiar', 'error'); });
+        }
+      });
+    });
+
+    c.querySelectorAll('[data-action="delete"]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var idx = parseInt(btn.getAttribute('data-idx'));
+        state.historial.splice(idx, 1);
+        saveState();
+        toast('Publicación eliminada', 'info');
+        renderHistorial(c);
+      });
+    });
+
+    var exportBtn = document.getElementById('btn-export-all');
+    if (exportBtn) {
+      exportBtn.addEventListener('click', function() {
+        var text = state.historial.map(function(p) {
+          return '--- ' + p.tipo.toUpperCase() + ' (' + NORMATIVAS[p.pais].flag + ') ' + formatFecha(p.fecha) + ' ---\n' + p.caption + '\n' + p.hashtags.join(' ') + '\n';
+        }).join('\n');
+        var blob = new Blob([text], {type:'text/plain;charset=utf-8'});
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url; a.download = 'PostSST_Historial_' + new Date().toISOString().slice(0,10) + '.txt';
+        a.click(); URL.revokeObjectURL(url);
+        toast('Historial exportado', 'success');
+      });
+    }
+
+    var delAllBtn = document.getElementById('btn-delete-all');
+    if (delAllBtn) {
+      delAllBtn.addEventListener('click', function() {
+        showModal(
+          '<h2 style="font-size:18px;margin-bottom:12px">⚠️ Confirmar</h2>' +
+          '<p style="font-size:14px;color:#666;margin-bottom:20px">¿Borrar todo el historial? Esta acción no se puede deshacer.</p>' +
+          '<div style="display:flex;gap:8px">' +
+            '<button class="btn btn-danger" id="btn-confirm-delete" style="flex:1">Sí, borrar todo</button>' +
+            '<button class="btn btn-sm" style="background:#6B7280" id="btn-cancel-delete">Cancelar</button>' +
+          '</div>',
+          function() {
+            document.getElementById('btn-confirm-delete').addEventListener('click', function() {
+              state.historial = [];
+              state.totalPosts = 0;
+              saveState();
+              closeModal();
+              toast('Historial borrado', 'info');
+              renderHistorial(c);
+            });
+            document.getElementById('btn-cancel-delete').addEventListener('click', closeModal);
+          }
+        );
+      });
+    }
+  }
+
+  // ==================== LEADS ====================
+
+  function renderLeads(c) {
+    var lmHtml = '';
+    if (state.leadMagnets.length === 0) {
+      lmHtml = '<p style="color:#999;text-align:center;padding:20px">Aún no hay recursos. Crea un Lead Magnet desde el generador.</p>';
+    } else {
+      lmHtml = '<table><tr><th>Título</th><th>URL</th><th>Leads</th><th>Creado</th></tr>' +
+        state.leadMagnets.map(function(lm) {
+          return '<tr><td><strong>' + escHtml(lm.titulo) + '</strong></td><td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + escHtml(lm.url) + '</td><td>' + lm.leads.length + '</td><td>' + formatFecha(lm.creado) + '</td></tr>';
+        }).join('') + '</table>';
+    }
+
+    var leadsHtml = '';
+    if (state.leads.length === 0) {
+      leadsHtml = '<p style="color:#999;text-align:center;padding:20px">Aún no hay leads capturados.</p>';
+    } else {
+      leadsHtml = '<table><tr><th>Email</th><th>Empresa</th><th>Recurso</th><th>Fecha</th></tr>' +
+        state.leads.map(function(l) {
+          return '<tr><td>' + escHtml(l.email) + '</td><td>' + escHtml(l.empresa || '—') + '</td><td>' + escHtml(l.recurso) + '</td><td>' + formatFecha(l.fecha) + '</td></tr>';
+        }).join('') + '</table>';
+    }
+
+    c.innerHTML = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">' +
+      '<div class="card stat-card" style="background:linear-gradient(135deg,#7C3AED,#6D28D9);padding:24px;text-align:center;color:white">' +
+        '<div style="font-size:36px">🧲</div>' +
+        '<div class="num" style="font-size:28px;font-weight:bold">' + state.leads.length + '</div>' +
+        '<div style="font-size:14px;opacity:0.85">Leads capturados</div>' +
+      '</div>' +
+      '<div class="card stat-card" style="background:linear-gradient(135deg,#2563EB,#1D4ED8);padding:24px;text-align:center;color:white">' +
+        '<div style="font-size:36px">🔗</div>' +
+        '<div class="num" style="font-size:28px;font-weight:bold">' + state.leadMagnets.length + '</div>' +
+        '<div style="font-size:14px;opacity:0.85">Recursos activos</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="card fade-in" style="margin-bottom:16px">' +
+      '<h3 style="font-size:16px;margin-bottom:12px">🔗 Recursos (Lead Magnets)</h3>' + lmHtml +
+    '</div>' +
+    '<div class="card fade-in">' +
+      '<h3 style="font-size:16px;margin-bottom:12px">📋 Últimos leads</h3>' + leadsHtml +
+    '</div>';
+  }
+
+  // ==================== CALENDARIO ====================
+
+  function renderCalendario(c) {
+    var pais = state._pais || 'VE';
+    var filtrados = CALENDARIO_BASE.filter(function(ev) {
+      return ev.paises.indexOf(pais) !== -1;
+    });
+
+    var filterBtns = Object.keys(NORMATIVAS).map(function(k) {
+      var n = NORMATIVAS[k];
+      return '<button class="btn btn-sm" data-cal-pais="' + k + '" style="background:' + (k===pais?'#EAB308':'#6B7280') + '">' + n.flag + '</button>';
+    }).join('');
+
+    var items = filtrados.map(function(ev) {
+      var dias = diasRestantes(ev.fecha);
+      var diasText = '';
+      if (dias > 0) {
+        diasText = '<span style="font-size:12px;color:' + (dias < 30 ? '#DC2626' : '#666') + '">' + dias + ' días</span>';
+      } else {
+        diasText = '<span style="font-size:12px;color:#DC2626;font-weight:bold">VENCIDO</span>';
+      }
+      return '<div style="padding:16px;border-left:4px solid ' + (ev.urgencia==='alta'?'#EF4444':ev.urgencia==='media'?'#EAB308':'#059669') + ';margin-bottom:8px;background:#F9FAFB;border-radius:8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">' +
+        '<div style="flex:1;min-width:200px">' +
+          '<p style="font-weight:bold;font-size:14px">' + ev.titulo + '</p>' +
+          '<p style="font-size:12px;color:#666">' + ev.ley + ' · <span class="badge ' + (ev.urgencia==='alta'?'badge-alta':ev.urgencia==='media'?'badge-media':'badge-baja') + '">' + ev.urgencia + '</span></p>' +
+        '</div>' +
+        '<div style="text-align:right">' +
+          '<p style="font-weight:bold;font-size:14px">' + formatCorta(ev.fecha) + '</p>' +
+          diasText +
+          '<br><button class="btn btn-sm" style="font-size:11px;padding:4px 12px;margin-top:4px" data-cal-post="' + escHtml(ev.titulo) + '">📸 Post</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+
+    c.innerHTML = '<div class="card fade-in">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px">' +
+        '<h2 style="font-size:18px">📆 Calendario de Cumplimiento SST</h2>' +
+        '<div style="display:flex;gap:6px" id="cal-filter-btns">' + filterBtns + '</div>' +
+      '</div>' +
+      items +
+    '</div>';
+
+    c.querySelectorAll('[data-cal-pais]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        state._pais = btn.getAttribute('data-cal-pais');
+        renderCalendario(c);
+      });
+    });
+
+    c.querySelectorAll('[data-cal-post]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var titulo = btn.getAttribute('data-cal-post');
+        state.activeTab = 'generador';
+        state._ultimoTema = titulo;
+        saveState();
+        var tabBtns = document.querySelectorAll('#tab-bar .tab-btn');
+        tabBtns.forEach(function(b) { b.classList.remove('active'); });
+        tabBtns[0].classList.add('active');
+        renderTabContent();
+        setTimeout(function() {
+          var temaInput = document.getElementById('tema-input');
+          if (temaInput) temaInput.value = titulo;
+        }, 50);
+        toast('Temas cargado en el generador', 'info');
+      });
+    });
+  }
+
+  // ==================== CRÉDITOS ====================
+
+  function renderCreditos(c) {
+    var credits = getCredits();
+    var norm = NORMATIVAS[state._pais || 'VE'];
+    var tasa = norm.tasa;
+
+    var planes = PLANES.map(function(plan) {
+      var local = (plan.precio * tasa).toFixed(0);
+      var tipoMoneda = norm.moneda;
+      return '<div class="card' + (plan.popular ? '" style="text-align:center;border:2px solid #EAB308;position:relative' : '" style="text-align:center') + '">' +
+        (plan.popular ? '<div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#EAB308;color:white;padding:2px 16px;border-radius:20px;font-size:12px;font-weight:bold">POPULAR</div>' : '') +
+        '<h3 style="font-size:14px;color:#666;margin-bottom:8px;margin-top:' + (plan.popular?'8px':'0') + '">' + plan.nombre + '</h3>' +
+        '<div style="font-size:32px;font-weight:bold">$' + plan.precio.toFixed(2) + '</div>' +
+        '<p style="color:#666;font-size:13px">≈ ' + tipoMoneda + ' ' + Number(local).toLocaleString() + '</p>' +
+        '<p style="margin:12px 0;font-weight:bold">' + plan.creditos + ' créditos</p>' +
+        '<p style="font-size:12px;color:#999;margin-bottom:12px">$' + (plan.precio / plan.creditos).toFixed(2) + ' por post</p>' +
+        '<button class="btn" style="width:100%" data-buy-plan="' + plan.id + '">Comprar</button>' +
+      '</div>';
+    }).join('');
+
+    c.innerHTML = '<div style="background:linear-gradient(135deg,#EAB308,#D97706);border-radius:16px;padding:32px;color:white;margin-bottom:16px" class="fade-in">' +
+      '<h2 style="font-size:24px;font-weight:bold">🪙 ' + credits + ' créditos disponibles</h2>' +
+      '<p style="opacity:0.9;margin-top:4px">1 post = 1 crédito · 1 WhatsApp = 0.5 créditos</p>' +
+    '</div>' +
+    '<div class="grid-3 fade-in">' + planes + '</div>';
+
+    c.querySelectorAll('[data-buy-plan]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var planId = btn.getAttribute('data-buy-plan');
+        var plan = PLANES.find(function(p) { return p.id === planId; });
+        if (!plan) return;
+        showModal(
+          '<h2 style="font-size:18px;margin-bottom:12px">💳 Comprar ' + plan.nombre + '</h2>' +
+          '<p style="font-size:16px;margin-bottom:8px"><strong>' + plan.creditos + ' créditos</strong> por <strong>$' + plan.precio.toFixed(2) + '</strong></p>' +
+          '<p style="font-size:13px;color:#666;margin-bottom:16px">Simulación de compra — en producción se integraría con un gateway de pago (MercadoPago, PayPal, etc.)</p>' +
+          '<div style="padding:16px;background:#F9FAFB;border-radius:12px;margin-bottom:16px">' +
+            '<p style="font-size:13px;color:#666;margin-bottom:8px">Métodos de pago simulados:</p>' +
+            '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+              '<button class="btn btn-sm btn-blue" id="btn-mpago">💳 MercadoPago</button>' +
+              '<button class="btn btn-sm" id="btn-paypal" style="background:#003087">🅿️ PayPal</button>' +
+              '<button class="btn btn-sm btn-success" id="btn-zelle">🏦 Zelle</button>' +
+            '</div>' +
+          '</div>' +
+          '<button class="btn btn-sm" style="background:#6B7280" id="btn-cancel-buy">Cancelar</button>',
+
+          function() {
+            document.getElementById('btn-cancel-buy').addEventListener('click', closeModal);
+            document.getElementById('btn-mpago').addEventListener('click', function() { simularCompra(plan); });
+            document.getElementById('btn-paypal').addEventListener('click', function() { simularCompra(plan); });
+            document.getElementById('btn-zelle').addEventListener('click', function() { simularCompra(plan); });
+          }
+        );
+      });
+    });
+  }
+
+  function simularCompra(plan) {
+    addCredits(plan.creditos);
+    state.totalIngresos += plan.precio;
+    saveState();
+    closeModal();
+    updateCreditsBadge();
+    toast('+' + plan.creditos + ' créditos agregados (simulado)', 'success');
+    renderCreditos(document.getElementById('tab-content'));
+  }
+
+  // ==================== CONFIGURACIÓN ====================
+
+  function renderConfiguracion(c) {
+    var email = state.currentUser.email;
+    var user = state.usuarios[email];
+    var perfil = user.perfil || getPerfilDefault();
+    var normLabels = {VE:'RIF',CO:'NIT',MX:'RFC',PE:'RUC'};
+
+    var logoSection = '';
+    if (perfil.logoUrl) {
+      logoSection = '<div style="margin-bottom:16px;text-align:center">' +
+        '<img src="' + escHtml(perfil.logoUrl) + '" style="max-width:120px;max-height:120px;border-radius:12px;border:2px solid #EAB308;object-fit:contain" alt="Logo" />' +
+        '<br><button class="btn btn-sm btn-danger" style="margin-top:8px" id="btn-remove-logo">🗑️ Quitar logo</button>' +
+      '</div>';
+    }
+
+    var paisSelect = Object.keys(NORMATIVAS).map(function(k) {
+      var n = NORMATIVAS[k];
+      return '<option value="' + k + '"' + (perfil.pais === k ? ' selected' : '') + '>' + n.flag + ' ' + n.nombre + '</option>';
+    }).join('');
+
+    var previewHtml = buildPerfilPreview(perfil);
+
+    c.innerHTML = '<div class="grid-2 fade-in">' +
+      '<div class="card">' +
+        '<h2 style="font-size:18px;margin-bottom:16px">⚙️ Configuración de la Empresa</h2>' +
+        '<p style="font-size:13px;color:#666;margin-bottom:20px">Estos datos se usarán en las publicaciones generadas y en la información de contacto de tus posts.</p>' +
+
+        logoSection +
+
+        '<label style="font-weight:bold;font-size:14px;display:block;margin-bottom:6px">📷 Logo de la empresa</label>' +
+        '<p style="font-size:12px;color:#999;margin-bottom:6px">Pega la URL de tu logotipo (JPG, PNG, SVG)</p>' +
+        '<input id="cfg-logo" placeholder="https://ejemplo.com/logo.png" value="' + escHtml(perfil.logoUrl || '') + '" style="margin-bottom:4px" />' +
+        '<button class="btn btn-sm" style="margin-bottom:16px;font-size:12px" id="btn-preview-logo">👁️ Vista previa</button>' +
+
+        '<label style="font-weight:bold;font-size:14px;display:block;margin-bottom:6px">🌍 País</label>' +
+        '<select id="cfg-pais" style="margin-bottom:12px">' + paisSelect + '</select>' +
+
+        '<label style="font-weight:bold;font-size:14px;display:block;margin-bottom:6px">🏢 Nombre de la empresa</label>' +
+        '<input id="cfg-nombre" placeholder="Ej: Constructora Ávila C.A." value="' + escHtml(perfil.nombreEmpresa || user.empresa || '') + '" style="margin-bottom:12px" />' +
+
+        '<label style="font-weight:bold;font-size:14px;display:block;margin-bottom:6px">🔢 Número / Registro Fiscal</label>' +
+        '<div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">' +
+          '<span id="cfg-rif-label" style="font-weight:bold;font-size:14px;white-space:nowrap;padding:12px 16px;border-radius:12px;background:#F9FAFB;border:1px solid #ddd">' + (normLabels[perfil.pais] || 'RIF') + '</span>' +
+          '<input id="cfg-rif" placeholder="Ej: J-12345678-9" value="' + escHtml(perfil.rif || '') + '" />' +
+        '</div>' +
+
+        '<label style="font-weight:bold;font-size:14px;display:block;margin-bottom:6px">📍 Dirección Fiscal</label>' +
+        '<textarea id="cfg-direccion" rows="2" placeholder="Av. Principal, Edificio A, Piso 3, Caracas, Venezuela" style="margin-bottom:12px;resize:vertical">' + escHtml(perfil.direccionFiscal || '') + '</textarea>' +
+
+        '<label style="font-weight:bold;font-size:14px;display:block;margin-bottom:6px">📞 Teléfono</label>' +
+        '<input id="cfg-telefono" placeholder="+58 212-555-1234" value="' + escHtml(perfil.telefono || '') + '" style="margin-bottom:12px" />' +
+
+        '<label style="font-weight:bold;font-size:14px;display:block;margin-bottom:6px">📧 Correo electrónico</label>' +
+        '<input id="cfg-email" type="email" placeholder="contacto@empresa.com" value="' + escHtml(perfil.emailContacto || '') + '" style="margin-bottom:12px" />' +
+
+        '<label style="font-weight:bold;font-size:14px;display:block;margin-bottom:6px">👤 Persona de contacto</label>' +
+        '<input id="cfg-contacto" placeholder="Nombre y Apellido" value="' + escHtml(perfil.personaContacto || '') + '" style="margin-bottom:20px" />' +
+
+        '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+          '<button class="btn" style="flex:1" id="btn-save-config">💾 Guardar configuración</button>' +
+          '<button class="btn btn-sm btn-danger" id="btn-clear-config">🗑️ Limpiar</button>' +
+        '</div>' +
+      '</div>' +
+
+      '<div>' +
+        '<div class="card" style="margin-bottom:16px">' +
+          '<h3 style="font-size:16px;margin-bottom:12px">👁️ Vista previa — así se verá tu info en los posts</h3>' +
+          '<div id="config-preview">' + previewHtml + '</div>' +
+        '</div>' +
+        '<div class="card">' +
+          '<h3 style="font-size:16px;margin-bottom:12px">📋 Datos actuales guardados</h3>' +
+          buildPerfilSummary(perfil, normLabels) +
+        '</div>' +
+      '</div>' +
+    '</div>';
+
+    document.getElementById('cfg-pais').addEventListener('change', function() {
+      var p = document.getElementById('cfg-pais').value;
+      document.getElementById('cfg-rif-label').textContent = normLabels[p] || 'RIF';
+    });
+
+    document.getElementById('btn-preview-logo').addEventListener('click', function() {
+      var url = document.getElementById('cfg-logo').value.trim();
+      if (!url) { toast('Pega una URL de imagen primero', 'error'); return; }
+      state.usuarios[email].perfil = readPerfilForm();
+      saveState();
+      renderConfiguracion(c);
+      toast('Vista previa del logo actualizada', 'info');
+    });
+
+    if (document.getElementById('btn-remove-logo')) {
+      document.getElementById('btn-remove-logo').addEventListener('click', function() {
+        perfil.logoUrl = '';
+        state.usuarios[email].perfil = perfil;
+        saveState();
+        renderConfiguracion(c);
+        toast('Logo eliminado', 'info');
+      });
+    }
+
+    document.getElementById('btn-save-config').addEventListener('click', function() {
+      state.usuarios[email].perfil = readPerfilForm();
+      var nombre = document.getElementById('cfg-nombre').value.trim();
+      if (nombre) {
+        state.usuarios[email].empresa = nombre;
+        state.currentUser.empresa = nombre;
+      }
+      saveState();
+      toast('Configuración guardada', 'success');
+      renderConfiguracion(c);
+      var headerEmpresa = document.querySelector('#app [style*="color:rgba(255,255,255,0.8)"]');
+      if (headerEmpresa && nombre) headerEmpresa.textContent = nombre;
+    });
+
+    document.getElementById('btn-clear-config').addEventListener('click', function() {
+      showModal(
+        '<h2 style="font-size:18px;margin-bottom:12px">⚠️ Limpiar configuración</h2>' +
+        '<p style="font-size:14px;color:#666;margin-bottom:20px">Se borrarán todos los datos de tu perfil de empresa. ¿Continuar?</p>' +
+        '<div style="display:flex;gap:8px">' +
+          '<button class="btn btn-danger" id="btn-confirm-clear" style="flex:1">Sí, limpiar</button>' +
+          '<button class="btn btn-sm" style="background:#6B7280" id="btn-cancel-clear">Cancelar</button>' +
+        '</div>',
+        function() {
+          document.getElementById('btn-cancel-clear').addEventListener('click', closeModal);
+          document.getElementById('btn-confirm-clear').addEventListener('click', function() {
+            state.usuarios[email].perfil = getPerfilDefault();
+            saveState();
+            closeModal();
+            toast('Configuración limpiada', 'info');
+            renderConfiguracion(c);
+          });
+        }
+      );
+    });
+
+    function readPerfilForm() {
+      return {
+        nombreEmpresa: document.getElementById('cfg-nombre').value.trim(),
+        rif: document.getElementById('cfg-rif').value.trim(),
+        logoUrl: document.getElementById('cfg-logo').value.trim(),
+        direccionFiscal: document.getElementById('cfg-direccion').value.trim(),
+        telefono: document.getElementById('cfg-telefono').value.trim(),
+        emailContacto: document.getElementById('cfg-email').value.trim(),
+        personaContacto: document.getElementById('cfg-contacto').value.trim(),
+        pais: document.getElementById('cfg-pais').value,
+      };
+    }
+  }
+
+  function buildPerfilPreview(perfil) {
+    var normLabels = {VE:'RIF',CO:'NIT',MX:'RFC',PE:'RUC'};
+    var normFlags = {VE:'🇻🇪',CO:'🇨🇴',MX:'🇲🇽',PE:'🇵🇪'};
+    var label = normLabels[perfil.pais] || 'RIF';
+    var flag = normFlags[perfil.pais] || '🇻🇪';
+    var nombre = perfil.nombreEmpresa || 'Nombre de tu empresa';
+    var rif = perfil.rif ? label + ': ' + perfil.rif : '';
+    var dir = perfil.direccionFiscal || '';
+    var tel = perfil.telefono || '';
+    var email = perfil.emailContacto || '';
+    var contacto = perfil.personaContacto || '';
+
+    var logo = '';
+    if (perfil.logoUrl) {
+      logo = '<div style="text-align:center;margin-bottom:12px"><img src="' + escHtml(perfil.logoUrl) + '" style="max-width:80px;max-height:80px;border-radius:10px;object-fit:contain" alt="Logo" /></div>';
+    }
+
+    return '<div style="background:white;border:1px solid #eee;border-radius:12px;padding:16px;font-size:13px">' +
+      logo +
+      '<div style="text-align:center;margin-bottom:12px">' +
+        '<p style="font-weight:bold;font-size:16px;color:#1F2937">' + escHtml(nombre) + '</p>' +
+        (rif ? '<p style="color:#92400E;font-weight:bold">' + flag + ' ' + escHtml(rif) + '</p>' : '') +
+      '</div>' +
+      (dir ? '<p style="margin-bottom:4px">📍 ' + escHtml(dir) + '</p>' : '') +
+      (tel ? '<p style="margin-bottom:4px">📞 ' + escHtml(tel) + '</p>' : '') +
+      (email ? '<p style="margin-bottom:4px">📧 ' + escHtml(email) + '</p>' : '') +
+      (contacto ? '<p style="margin-bottom:4px">👤 ' + escHtml(contacto) + '</p>' : '') +
+      (!dir && !tel && !email && !contacto && !rif ? '<p style="color:#999;text-align:center;padding:12px">Completa los campos para ver la vista previa</p>' : '') +
+    '</div>';
+  }
+
+  function buildPerfilSummary(perfil, normLabels) {
+    var label = normLabels[perfil.pais] || 'RIF';
+    var fields = [
+      {icon:'🏢',label:'Empresa',value:perfil.nombreEmpresa},
+      {icon:'🔢',label:label,value:perfil.rif},
+      {icon:'🌍',label:'País',value:(NORMATIVAS[perfil.pais]||NORMATIVAS.VE).flag + ' ' + (NORMATIVAS[perfil.pais]||NORMATIVAS.VE).nombre},
+      {icon:'📍',label:'Dirección',value:perfil.direccionFiscal},
+      {icon:'📞',label:'Teléfono',value:perfil.telefono},
+      {icon:'📧',label:'Email',value:perfil.emailContacto},
+      {icon:'👤',label:'Contacto',value:perfil.personaContacto},
+      {icon:'📷',label:'Logo',value:perfil.logoUrl ? '✅ Cargado' : '❌ Sin cargar'},
+    ];
+    return fields.map(function(f) {
+      return '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f5f5f5;font-size:13px">' +
+        '<span style="color:#666">' + f.icon + ' ' + f.label + '</span>' +
+        '<span style="font-weight:bold;text-align:right;max-width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + escHtml(f.value || '—') + '">' + escHtml(f.value || '—') + '</span>' +
+      '</div>';
+    }).join('');
+  }
+
+  // ==================== ADMIN ====================
+
+  function renderAdmin(c) {
+    if (state.currentUser.rol !== 'ADMIN') {
+      c.innerHTML = '<p>Acceso denegado</p>';
+      return;
+    }
+
+    var users = state.usuarios;
+    var userCount = Object.keys(users).length;
+    var postsCount = state.totalPosts;
+    var leadsCount = state.leads.length;
+    var ingresos = state.totalIngresos;
+
+    var userRows = Object.keys(users).map(function(email) {
+      var u = users[email];
+      return '<tr>' +
+        '<td><strong>' + escHtml(u.empresa) + '</strong></td>' +
+        '<td>' + escHtml(email) + '</td>' +
+        '<td><span class="badge ' + (u.rol==='ADMIN'?'badge-admin':'badge-editor') + '">' + u.rol + '</span></td>' +
+        '<td>' + u.cred + '</td>' +
+        '<td><button class="btn btn-sm" data-add-credit="' + escHtml(email) + '" style="font-size:11px">+50</button></td>' +
+      '</tr>';
+    }).join('');
+
+    c.innerHTML = '<div class="grid-4 fade-in" style="margin-bottom:16px">' +
+      '<div class="stat-card" style="background:#1F2937;padding:24px">' +
+        '<div class="icon">👥</div><div class="num">' + userCount + '</div><div class="label">Usuarios</div>' +
+      '</div>' +
+      '<div class="stat-card" style="background:#2563EB;padding:24px">' +
+        '<div class="icon">📸</div><div class="num">' + postsCount + '</div><div class="label">Posts generados</div>' +
+      '</div>' +
+      '<div class="stat-card" style="background:#7C3AED;padding:24px">' +
+        '<div class="icon">🧲</div><div class="num">' + leadsCount + '</div><div class="label">Leads</div>' +
+      '</div>' +
+      '<div class="stat-card" style="background:#059669;padding:24px">' +
+        '<div class="icon">💰</div><div class="num">$' + ingresos.toFixed(2) + '</div><div class="label">Ingresos</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="card fade-in" style="margin-bottom:16px">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">' +
+        '<h3 style="font-size:16px">🏢 Empresas registradas</h3>' +
+        '<button class="btn btn-sm btn-blue" id="btn-add-user">➕ Nuevo usuario</button>' +
+      '</div>' +
+      '<table><tr><th>Empresa</th><th>Email</th><th>Rol</th><th>Créditos</th><th>Acción</th></tr>' +
+        userRows +
+      '</table>' +
+    '</div>' +
+    '<div class="card fade-in">' +
+      '<h3 style="font-size:16px;margin-bottom:12px">🛠️ Herramientas</h3>' +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+        '<button class="btn btn-sm btn-danger" id="btn-reset-data">🔄 Resetear datos</button>' +
+        '<button class="btn btn-sm btn-blue" id="btn-export-state">💾 Exportar estado</button>' +
+      '</div>' +
+    '</div>';
+
+    c.querySelectorAll('[data-add-credit]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var email = btn.getAttribute('data-add-credit');
+        if (users[email]) {
+          users[email].cred += 50;
+          saveState();
+          toast('+50 créditos a ' + email, 'success');
+          renderAdmin(c);
+          updateCreditsBadge();
+        }
+      });
+    });
+
+    var addUserBtn = document.getElementById('btn-add-user');
+    if (addUserBtn) {
+      addUserBtn.addEventListener('click', function() {
+        showModal(
+          '<h2 style="font-size:18px;margin-bottom:16px">➕ Nuevo usuario</h2>' +
+          '<label style="font-weight:bold;font-size:14px;display:block;margin-bottom:6px">Nombre</label>' +
+          '<input id="nu-nombre" placeholder="Nombre de la empresa" style="margin-bottom:12px" />' +
+          '<label style="font-weight:bold;font-size:14px;display:block;margin-bottom:6px">Email</label>' +
+          '<input id="nu-email" placeholder="correo@empresa.com" style="margin-bottom:12px" />' +
+          '<label style="font-weight:bold;font-size:14px;display:block;margin-bottom:6px">Contraseña</label>' +
+          '<input id="nu-pass" type="password" placeholder="Contraseña" style="margin-bottom:12px" />' +
+          '<label style="font-weight:bold;font-size:14px;display:block;margin-bottom:6px">Empresa</label>' +
+          '<input id="nu-empresa" placeholder="Nombre legal" style="margin-bottom:12px" />' +
+          '<label style="font-weight:bold;font-size:14px;display:block;margin-bottom:6px">Rol</label>' +
+          '<select id="nu-rol" style="margin-bottom:16px"><option value="EDITOR">✏️ EDITOR</option><option value="ADMIN">👑 ADMIN</option></select>' +
+          '<div style="display:flex;gap:8px">' +
+            '<button class="btn" style="flex:1" id="btn-nu-save">Guardar</button>' +
+            '<button class="btn btn-sm" style="background:#6B7280" id="btn-nu-cancel">Cancelar</button>' +
+          '</div>',
+          function() {
+            document.getElementById('btn-nu-cancel').addEventListener('click', closeModal);
+            document.getElementById('btn-nu-save').addEventListener('click', function() {
+              var email = document.getElementById('nu-email').value.trim();
+              var nombre = document.getElementById('nu-nombre').value.trim();
+              var pass = document.getElementById('nu-pass').value;
+              var empresa = document.getElementById('nu-empresa').value.trim();
+              var rol = document.getElementById('nu-rol').value;
+              if (!email || !nombre || !pass) { toast('Completa los campos obligatorios', 'error'); return; }
+              if (users[email]) { toast('Ese email ya existe', 'error'); return; }
+              users[email] = {nombre: nombre, rol: rol, pass: pass, empresa: empresa || nombre, cred: 20, perfil: getPerfilDefault()};
+              saveState();
+              closeModal();
+              toast('Usuario ' + nombre + ' creado', 'success');
+              renderAdmin(c);
+            });
+          }
+        );
+      });
+    }
+
+    var resetBtn = document.getElementById('btn-reset-data');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', function() {
+        showModal(
+          '<h2 style="font-size:18px;margin-bottom:12px">⚠️ Resetear todos los datos</h2>' +
+          '<p style="color:#666;font-size:14px;margin-bottom:20px">Esto eliminará todo el historial, leads y configuraciones. ¿Continuar?</p>' +
+          '<div style="display:flex;gap:8px">' +
+            '<button class="btn btn-danger" id="btn-confirm-reset" style="flex:1">Sí, resetear</button>' +
+            '<button class="btn btn-sm" style="background:#6B7280" id="btn-cancel-reset">Cancelar</button>' +
+          '</div>',
+          function() {
+            document.getElementById('btn-cancel-reset').addEventListener('click', closeModal);
+            document.getElementById('btn-confirm-reset').addEventListener('click', function() {
+              localStorage.removeItem('postsst_state');
+              state = getDefaultState();
+              state._version = VERSION;
+              saveState();
+              closeModal();
+              toast('Datos reseteados', 'info');
+              logout();
+            });
+          }
+        );
+      });
+    }
+
+    var exportBtn = document.getElementById('btn-export-state');
+    if (exportBtn) {
+      exportBtn.addEventListener('click', function() {
+        var blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url; a.download = 'PostSST_Estado_' + new Date().toISOString().slice(0,10) + '.json';
+        a.click(); URL.revokeObjectURL(url);
+        toast('Estado exportado como JSON', 'success');
+      });
+    }
+  }
+
+  // ==================== INIT ====================
+  if (state.currentUser) {
+    var u = state.usuarios[state.currentUser.email];
+    if (!u) {
+      state.currentUser = null;
+      saveState();
+    }
+  }
+  render();
+
+})();
+</script>
+</body>
+</html>
