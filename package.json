@@ -1,0 +1,11 @@
+{
+  "name": "ergox-post",
+  "version": "3.0.0",
+  "private": true,
+  "type": "module",
+  "description": "ERGOX Post — PWA de publicaciones SST multinacional (backend opcional Google Sheets)",
+  "scripts": {
+    "test": "node --test \"tests/*.test.js\"",
+    "check": "node scripts/check-sintaxis.mjs && node scripts/check-imports.mjs"
+  }
+}

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Descarga tu recurso SST</title>
+<meta name="theme-color" content="#EAB308">
+<meta name="description" content="Descarga recursos gratuitos de Seguridad y Salud en el Trabajo (SST).">
+<link rel="stylesheet" href="assets/css/app.css">
+<style>
+.landing { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.landing .card { max-width: 480px; width: 100%; }
+
+.landing-hero {
+  background: linear-gradient(135deg, #EAB308, #D97706);
+  border-radius: 20px; padding: 28px 24px; color: #fff; text-align: center;
+  position: relative; overflow: hidden; margin-bottom: 20px;
+}
+.landing-hero::after {
+  content: ''; position: absolute; width: 180px; height: 180px; border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14); top: -70px; right: -50px;
+}
+.landing-hero .icono { font-size: 52px; position: relative; z-index: 1; }
+.landing-hero h1 { font-size: 24px; font-weight: bold; position: relative; z-index: 1; }
+.landing-hero p { font-size: 13px; opacity: 0.92; margin-top: 4px; position: relative; z-index: 1; }
+
+.l-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: bold; padding: 7px 12px; border-radius: 20px;
+}
+.l-exito { text-align: center; padding: 8px 0; }
+#landing-body { min-height: 120px; }
+@media (max-width: 420px) {
+  .landing-hero { padding: 22px 16px; }
+  .landing-hero .icono { font-size: 42px; }
+}
+</style>
+</head>
+<body>
+<main class="landing">
+  <div class="card fade-in" id="landing-card">
+    <div class="landing-hero">
+      <div class="icono">🛡️</div>
+      <h1>ERGOX <span style="color:#FEF3C7">Post</span></h1>
+      <p>Recurso gratuito de Seguridad y Salud en el Trabajo</p>
+    </div>
+    <div id="landing-body" aria-live="polite"><p class="muted centrado" style="padding:30px">Cargando recurso…</p></div>
+    <p class="muted centrado" style="margin-top:18px;font-size:12px">
+      🔒 Tus datos solo se usan para enviarte el recurso solicitado.
+      <a href="privacidad.html" target="_blank" rel="noopener" style="color:var(--azul)">Política de privacidad</a>
+    </p>
+  </div>
+</main>
+<script type="module" src="js/marketing/landing.js"></script>
+</body>
+</html>

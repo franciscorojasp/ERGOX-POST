@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Política de Privacidad — ERGOX Post</title>
+<meta name="theme-color" content="#EAB308">
+<link rel="stylesheet" href="assets/css/app.css">
+<style>
+main { max-width: 820px; margin: 0 auto; padding: 24px; }
+main h2 { margin: 24px 0 8px; font-size: 17px; }
+main p, main li { font-size: 14px; line-height: 1.7; }
+ul { padding-left: 20px; }
+.resumen {
+  background: var(--ambar-claro); border-left: 4px solid var(--ambar);
+  border-radius: 12px; padding: 14px 16px; font-size: 13px; color: var(--ambar-oscuro);
+  margin-bottom: 18px;
+}
+.resumen strong { display: block; margin-bottom: 6px; }
+.pie-politica {
+  margin-top: 28px; padding-top: 16px; border-top: 1px solid var(--borde);
+  font-size: 12px; color: var(--texto-suave); display: flex;
+  justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+</style>
+</head>
+<body>
+<main>
+<div class="card fade-in" style="margin-top:24px">
+  <div style="font-size:40px">🔒</div>
+  <h1 style="font-size:24px;margin:8px 0 4px">Política de Privacidad — ERGOX Post</h1>
+  <p class="muted" style="margin-bottom:20px">Última actualización: agosto de 2026</p>
+
+  <div class="resumen">
+    <strong>En resumen</strong>
+    • Pedimos solo lo necesario: nombre, correo, empresa y teléfono opcional.<br>
+    • Usamos tus datos para enviarte el recurso solicitado y, si aceptas, información comercial.<br>
+    • Puedes solicitar acceso, corrección o eliminación en cualquier momento.
+  </div>
+
+  <h2>1. Responsable del tratamiento</h2>
+  <p style="margin-bottom:16px">ERGOX Post es una herramienta de generación de publicaciones de Seguridad y Salud en el Trabajo operada por la empresa que emite el recurso que usted descarga. La empresa es la responsable del tratamiento de los datos que usted consigne en los formularios de captura.</p>
+
+  <h2>2. Datos que recopilamos</h2>
+  <p style="margin-bottom:16px">Al usar los formularios de descarga (lead magnets) recopilamos: nombre, correo electrónico, empresa, teléfono (opcional) y el registro de su consentimiento. No recopilamos datos bancarios ni información de salud.</p>
+
+  <h2>3. Finalidades</h2>
+  <ul style="margin-bottom:16px">
+    <li>Entregar el recurso solicitado y dar seguimiento comercial.</li>
+    <li>Enviar información sobre productos y servicios de SST de la empresa.</li>
+    <li>Mejorar los contenidos ofrecidos (uso agregado, sin identificación personal).</li>
+  </ul>
+
+  <h2>4. Base legal y consentimiento</h2>
+  <p style="margin-bottom:16px">Tratamos sus datos con base en su consentimiento expreso (casilla de verificación) y en el interés legítimo de responder su solicitud. La legislación aplicable incluye, según su país: Ley Orgánica de Protección de Datos Personales (Venezuela, 2023), Ley 1581 de 2012 (Colombia), LFPDPPP (México), Ley 29733 (Perú), Ley 25.326 (Argentina) y Ley 19.628 (Chile).</p>
+
+  <h2>5. Almacenamiento y seguridad</h2>
+  <p style="margin-bottom:16px">Los datos se almacenan en infraestructura en la nube (Google Sheets vía Apps Script o equivalente) con acceso restringido. Aplicamos medidas técnicas y organizativas razonables (autenticación, cifrado en tránsito). En modo demo, los datos permanecen únicamente en el dispositivo del usuario.</p>
+
+  <h2>6. Derechos de los titulares</h2>
+  <p style="margin-bottom:16px">Usted puede solicitar acceso, rectificación, supresión, limitación u oposición al tratamiento escribiendo al correo de contacto de la empresa emisora (consúltelo en su página web o perfil de redes), identificándose y adjuntando copia de su documento de identidad.</p>
+
+  <h2>7. Retención</h2>
+  <p style="margin-bottom:16px">Conservamos sus datos mientras sean necesarios para las finalidades descritas y los plazos legales aplicables en su país, y luego los eliminamos o anonimizamos.</p>
+
+  <h2>8. Cookies y tecnologías</h2>
+  <p style="margin-bottom:16px">Esta aplicación utiliza almacenamiento local del navegador (localStorage/IndexedDB) para el funcionamiento de la herramienta (sesión, preferencias, historial). No utilizamos cookies de rastreo de terceros.</p>
+
+  <div class="pie-politica">
+    <a href="./" style="color:var(--azul)">← Volver a la aplicación</a>
+    <span>© <span id="anno"></span> ERGOX Post</span>
+  </div>
+</div>
+</main>
+<script>
+  document.getElementById('anno').textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
