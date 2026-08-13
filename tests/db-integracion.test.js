@@ -60,7 +60,7 @@ test('flujo end-to-end a través del contrato db', async () => {
   // compra + confirmación admin
   const compra = await db.db.comprarPlan({ id: 'starter', precio: 9.99, creditos: 10 }, 'clinica@x.com');
   assert.equal(compra.intento.estado, 'PENDIENTE');
-  await db.db.confirmarPago(compra.intento.id, 'REF-X', 'admin@ergox.com');
+  await db.db.confirmarPago(compra.intento.id, 'REF-X', 'francisco.rojasp@gmail.com');
   cred = await db.db.creditos('clinica@x.com');
   assert.equal(cred, 9 + 10);
 

@@ -51,7 +51,7 @@ export async function renderLogin(c) {
             '<label for="reg-pais">País principal</label>' +
             '<select id="reg-pais">' + paises + '</select>' +
             '<label for="reg-ref">Código de referido (opcional)</label>' +
-            '<input id="reg-ref" placeholder="Ej: admin@ergox.com" />' +
+            '<input id="reg-ref" placeholder="Ej: empresa@ergox.com" />' +
             '<div id="reg-error" style="color:#DC2626;font-size:14px" class="hidden"></div>' +
             '<button class="btn" id="btn-registro">🎉 Crear cuenta</button>' +
           '</div>' +

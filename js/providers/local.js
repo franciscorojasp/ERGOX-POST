@@ -54,9 +54,9 @@ export function crearLocalProvider(adapter) {
     // credenciales demo
     const adminSalt = generarSalt();
     const emSalt = generarSalt();
-    s.usuarios['admin@ergox.com'] = {
-      nombre: 'Admin ERGOX', rol: 'ADMIN', empresa: 'Plataforma', cred: 1000,
-      hash: 'seed', salt: adminSalt, perfil: perfilDefault(), creado: new Date().toISOString(), activo: true, seedEmail: 'admin@ergox.com',
+    s.usuarios['francisco.rojasp@gmail.com'] = {
+      nombre: 'Francisco Rojas', rol: 'ADMIN', empresa: 'ERGOX', cred: 1000,
+      hash: 'seed', salt: adminSalt, perfil: perfilDefault(), creado: new Date().toISOString(), activo: true, seedEmail: 'francisco.rojasp@gmail.com',
     };
     s.usuarios['empresa@ergox.com'] = {
       nombre: 'Constructora Venezuela', rol: 'EDITOR', empresa: 'Constructora Ávila C.A.', cred: 100,

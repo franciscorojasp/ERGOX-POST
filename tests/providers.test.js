@@ -17,7 +17,7 @@ test('flujo completo local: login demo, registro, créditos, post, lead magnet, 
   const p = crearLocalProvider(memoria());
 
   // demo admin
-  const r1 = await p.login('admin@ergox.com', 'Admin2026!');
+  const r1 = await p.login('francisco.rojasp@gmail.com', 'Leo1508$');
   assert.equal(r1.ok, true);
   assert.equal(r1.user.rol, 'ADMIN');
 
@@ -52,7 +52,7 @@ test('flujo completo local: login demo, registro, créditos, post, lead magnet, 
   // compra + confirmación admin
   const compra = await p.comprarPlan({ id: 'profesional', precio: 39.99, creditos: 50 }, 'cliente@x.com');
   assert.equal(compra.intento.estado, 'PENDIENTE');
-  const conf = await p.confirmarPago(compra.intento.id, 'REF-1', 'admin@ergox.com');
+  const conf = await p.confirmarPago(compra.intento.id, 'REF-1', 'francisco.rojasp@gmail.com');
   assert.equal(conf.t.estado, 'PAGADO');
   cred = await p.obtenerCreditos('cliente@x.com');
   assert.equal(cred, 9 + 50);

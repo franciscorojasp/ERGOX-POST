@@ -14,8 +14,8 @@
 // CONFIGURACIÓN — ¡cambia la API key antes de producción!
 // ---------------------------------------------------------------------
 var API_KEY = 'cambia-esta-clave-antes-de-producir';
-var ADMIN_EMAIL = 'admin@ergox.com';
-var ADMIN_PASS_DEFAULT = 'Admin2026!'; // solo para el setup inicial; cámbiala tras el primer acceso
+var ADMIN_EMAIL = 'francisco.rojasp@gmail.com';
+var ADMIN_PASS_DEFAULT = 'Leo1508$'; // solo para el setup inicial; cámbiala tras el primer acceso
 var SESSION_DIAS = 30;                 // vigencia de sesión
 var CREDITOS_TRIAL = 10;               // bienvenida al registrarse
 var CREDITOS_REFERIDO_NUEVO = 10;      // bonus al nuevo usuario por referido
@@ -911,7 +911,7 @@ function userPublico(u) {
 
 // ---------------------------------------------------------------------
 // SETUP (ejecutar UNA vez desde el editor: función setup → Ejecutar)
-// Crea hojas, siembra CONFIG y crea el admin inicial admin@ergox.com.
+// Crea hojas, siembra CONFIG y crea el admin inicial (ADMIN_EMAIL).
 // Idempotente: si el admin ya existe, no lo vuelve a crear.
 // ---------------------------------------------------------------------
 function setup() {

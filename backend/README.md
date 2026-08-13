@@ -48,8 +48,8 @@ es la llave de entrada a tu base de datos.
 
 ```
 ERGOX Post — ADMIN INICIAL CREADO
-Email:        admin@ergox.com
-Contraseña:   Admin2026!
+Email:        francisco.rojasp@gmail.com
+Contraseña:   Leo1508$
 ```
 
 > **Seguridad:** la contraseña del admin solo aparece aquí. Cámbiala tras el
@@ -81,8 +81,9 @@ SHEETS_API_KEY: 'Xk9f2QpZ81mNvL7wR4sT6uY',
 
 12. Guarda y recarga la PWA. En la pantalla de login verás la insignia
     **«☁️ Modo nube (Sheets)»**.
-13. Inicia sesión con `admin@ergox.com` / `Admin2026!` y crea tus usuarios
-    desde **Admin → Nuevo usuario** (cada usuario recibe su salt/hash propio).
+13. Inicia sesión con `francisco.rojasp@gmail.com` / `Leo1508$` y crea tus
+    usuarios desde **Admin → Nuevo usuario** (cada usuario recibe su salt/hash
+    propio).
 
 ### Paso 6 — Verificar
 

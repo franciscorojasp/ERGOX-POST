@@ -15,7 +15,7 @@ export const CFG = {
   SHEETS_API_KEY: '',
 
   // ---- Credenciales de demo (solo modo local) ----
-  DEMO_ADMIN: { email: 'admin@ergox.com', pass: 'Admin2026!' },
+  DEMO_ADMIN: { email: 'francisco.rojasp@gmail.com', pass: 'Leo1508$' },
   DEMO_EMPRESA: { email: 'empresa@ergox.com', pass: 'demo123' },
 
   // ---- Reglas de negocio ----
