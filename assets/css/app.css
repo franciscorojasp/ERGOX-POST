@@ -34,7 +34,7 @@
   --sombra: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; }
 html { scroll-behavior: smooth; }
 body { background: var(--bg); color: var(--texto); min-height: 100vh; transition: background 0.2s, color 0.2s; }
 
@@ -166,3 +166,105 @@ main { padding: 24px 32px; max-width: 1280px; margin: 0 auto; }
 #zona-impresion { font-size: 13px; color: #111; }
 #zona-impresion table { width: 100%; border-collapse: collapse; }
 #zona-impresion td, #zona-impresion th { border: 1px solid #999; padding: 6px 8px; }
+
+/* =====================================================
+   GENERADOR — UI minimalista (patrón Canva/Buffer/Predis:
+   rail de controles a la izquierda + vista previa sticky)
+   ===================================================== */
+#gen-vista { --r: 14px; }
+#gen-vista .gen-grid { display: grid; grid-template-columns: 330px 1fr; gap: 18px; align-items: start; }
+#gen-vista .gen-rail { display: flex; flex-direction: column; gap: 16px; }
+#gen-vista .gen-panel { background: var(--card); border: 1px solid var(--borde); border-radius: var(--r); padding: 20px; box-shadow: var(--sombra); }
+#gen-vista .gen-titulo { font-size: 17px; font-weight: 700; letter-spacing: -0.01em; display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+#gen-vista .gen-titulo .gen-mini { font-size: 11px; font-weight: 600; color: var(--texto-suave); margin-left: auto; }
+#gen-vista .gen-seccion { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--texto-suave); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+#gen-vista .gen-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+#gen-vista .gen-chip {
+  background: var(--bg-alt); color: var(--texto-suave); border: 1px solid var(--borde);
+  border-radius: 999px; padding: 8px 14px; font-size: 13px; font-weight: 600; cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+#gen-vista .gen-chip:hover { border-color: var(--borde-fuerte); color: var(--texto); transform: translateY(-1px); }
+#gen-vista .gen-chip.activo { background: var(--ambar); border-color: var(--ambar); color: #fff; box-shadow: 0 2px 10px var(--sombra-ambar); }
+#gen-vista .gen-chip.activo:hover { color: #fff; }
+#gen-vista .gen-tema-btn { font-size: 11.5px; padding: 6px 11px; }
+#gen-vista .gen-input { margin-top: 8px; }
+/* Fichas de plantilla (selector de estilo de placa) */
+#gen-vista .gen-plantas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+#gen-vista .gen-planta {
+  position: relative; border: 2px solid var(--borde); border-radius: 12px; padding: 6px;
+  cursor: pointer; background: var(--bg-alt); transition: all 0.15s ease; outline: none;
+}
+#gen-vista .gen-planta:hover, #gen-vista .gen-planta:focus-visible { border-color: var(--borde-fuerte); transform: translateY(-1px); }
+#gen-vista .gen-planta.activo { border-color: var(--ambar); box-shadow: 0 0 0 3px var(--sombra-ambar); }
+#gen-vista .gen-planta .miniatura { height: 84px; border-radius: 8px; display: flex; flex-direction: column; justify-content: center; padding: 12px; gap: 6px; }
+#gen-vista .gen-planta .miniatura i { display: block; height: 6px; border-radius: 3px; background: var(--borde-fuerte); opacity: 0.45; }
+#gen-vista .gen-planta.activo .miniatura i { opacity: 0.9; }
+#gen-vista .gen-planta .nombre { font-size: 11px; font-weight: 700; text-align: center; margin-top: 7px; color: var(--texto-suave); }
+#gen-vista .gen-planta.activo .nombre { color: var(--texto); }
+#gen-vista .gen-planta .check {
+  position: absolute; top: -7px; right: -7px; width: 20px; height: 20px; border-radius: 50%;
+  background: var(--ambar); color: #fff; font-size: 12px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  opacity: 0; transform: scale(0.5); transition: all 0.15s ease;
+}
+#gen-vista .gen-planta.activo .check { opacity: 1; transform: scale(1); }
+.mini-clasico { background: linear-gradient(135deg, #FDE68A, #D97706); }
+.mini-minimal { background: linear-gradient(135deg, #FFFFFF, #E5E7EB); }
+.mini-oscuro { background: linear-gradient(135deg, #1F2937, #111827); }
+.mini-clasico i, .mini-oscuro i { background: rgba(255, 255, 255, 0.75); }
+/* Botón principal */
+#gen-vista .gen-generar {
+  width: 100%; padding: 13px; border: none; border-radius: 12px;
+  background: linear-gradient(135deg, #EAB308, #D97706); color: #fff; font-weight: 700; font-size: 15px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
+}
+#gen-vista .gen-generar:hover { transform: translateY(-1px); box-shadow: 0 6px 16px var(--sombra-ambar); }
+#gen-vista .gen-generar:disabled { opacity: 0.55; cursor: not-allowed; transform: none; box-shadow: none; }
+#gen-vista .gen-generar .gen-costo { font-weight: 500; opacity: 0.85; font-size: 12.5px; }
+.spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.35); border-top-color: #fff; border-radius: 50%; animation: giro 0.7s linear infinite; display: inline-block; }
+@keyframes giro { to { transform: rotate(360deg); } }
+/* Vista previa tipo post */
+#gen-vista .gen-preview { position: sticky; top: 74px; }
+#gen-vista .gen-preview-titulo { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+#gen-vista .gen-preview-titulo h3 { font-size: 15px; font-weight: 700; }
+#gen-vista .gen-preview-titulo .gen-pill { margin-left: auto; font-size: 11px; font-weight: 700; background: var(--ambar-claro); color: var(--ambar-oscuro); padding: 4px 12px; border-radius: 999px; }
+#gen-vista .gen-post { background: var(--bg-alt); border: 1px solid var(--borde); border-radius: 14px; overflow: hidden; }
+#gen-vista .gen-post-cabeza { display: flex; align-items: center; gap: 10px; padding: 12px 14px 10px; }
+#gen-vista .gen-post-avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #EAB308, #D97706); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 13px; flex-shrink: 0; }
+#gen-vista .gen-post-cabeza .nom { font-size: 13px; font-weight: 700; line-height: 1.25; }
+#gen-vista .gen-post-cabeza .sub { font-size: 11px; color: var(--texto-suave); }
+#gen-vista .gen-post-foto {
+  margin: 0 6px; border-radius: 12px; min-height: 190px; display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, #FDE68A, #D97706); color: #fff; font-weight: 800; font-size: 21px;
+  text-align: center; padding: 28px 18px; line-height: 1.35; text-transform: uppercase; letter-spacing: 0.01em;
+}
+#gen-vista .gen-post-body { padding: 13px 14px 4px; font-size: 13.5px; line-height: 1.6; white-space: pre-wrap; color: var(--texto); }
+#gen-vista .gen-post-hashtags { padding: 8px 14px 12px; display: flex; flex-wrap: wrap; gap: 5px; }
+#gen-vista .gen-tag { background: var(--ambar-claro); color: var(--ambar-oscuro); border-radius: 999px; padding: 4px 10px; font-size: 11px; font-weight: 600; }
+#gen-vista .gen-meta { display: flex; justify-content: space-between; padding: 9px 14px; border-top: 1px solid var(--borde); font-size: 11px; color: var(--texto-suave); }
+/* Acciones */
+#gen-vista .gen-acciones { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+#gen-vista .gen-accion {
+  flex: 1; min-width: 100px; display: flex; align-items: center; justify-content: center; gap: 7px;
+  padding: 10px 6px; border-radius: 10px; border: 1px solid var(--borde); background: var(--card);
+  color: var(--texto); font-size: 12.5px; font-weight: 600; cursor: pointer; transition: all 0.15s ease;
+}
+#gen-vista .gen-accion:hover { border-color: var(--borde-fuerte); background: var(--bg-alt); transform: translateY(-1px); }
+#gen-vista .gen-accion.gen-primaria { background: var(--azul); border-color: var(--azul); color: #fff; }
+#gen-vista .gen-accion.gen-primaria:hover { filter: brightness(1.1); }
+/* Estados vacío / carga */
+#gen-vista .gen-empty { text-align: center; padding: 56px 24px; }
+#gen-vista .gen-empty svg { width: 110px; height: 110px; margin: 0 auto 16px; display: block; color: var(--borde-fuerte); }
+#gen-vista .gen-empty h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+#gen-vista .gen-empty p { font-size: 13.5px; color: var(--texto-suave); max-width: 270px; margin: 0 auto; line-height: 1.6; }
+#gen-vista .gen-skeleton { animation: shimmer 1.3s infinite linear; background: linear-gradient(90deg, var(--bg-alt) 25%, var(--borde) 50%, var(--bg-alt) 75%); background-size: 400% 100%; border-radius: 12px; }
+@keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
+#gen-vista .gen-post.gen-entra { animation: genEntra 0.25s ease; }
+@keyframes genEntra { from { opacity: 0; transform: translateY(6px) scale(0.99); } to { opacity: 1; transform: none; } }
+#gen-vista .gen-aviso { font-size: 12px; line-height: 1.6; }
+@media (max-width: 900px) {
+  #gen-vista .gen-grid { grid-template-columns: 1fr; }
+  #gen-vista .gen-preview { position: static; }
+}
